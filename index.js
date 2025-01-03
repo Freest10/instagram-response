@@ -8,8 +8,7 @@ app.use(bodyParser.json());
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.INSTAGRAM_PAGE_ACCESS_TOKEN;
 
-// Верификация вебхука
-app.get('/', (req, res) => {
+app.get('/webhook', (req, res) => {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
@@ -21,8 +20,7 @@ app.get('/', (req, res) => {
     }
 });
 
-// Обработка входящих событий
-app.post('/', async (req, res) => {
+app.post('/webhook', async (req, res) => {
     const body = req.body;
 
     if (body.object === 'instagram') {
@@ -33,11 +31,9 @@ app.post('/', async (req, res) => {
                     const commentId = change.value.comment_id;
                     const commentText = change.value.text.toLowerCase();
 
-                    // Проверка на ключевое слово
                     if (commentText.includes('test') || commentText.includes('тест')) {
                         const userId = change.value.from.id;
 
-                        // Отправка личного сообщения
                         await sendDirectMessage(userId, `Приветствую! Спасибо за ваш интерес! Чтобы получить бесплатный гайд 
                         «5 шагов, как победить апатию», перейдите, пожалуйста, в наш чат-бот (кликните на ссылку ниже), чтобы удобно получить материалы и задать вопросы.\r\n
                         https://t.me/annamosk_bot`);
@@ -51,7 +47,6 @@ app.post('/', async (req, res) => {
     }
 });
 
-// Функция для отправки сообщения
 async function sendDirectMessage(recipientId, messageText) {
     const url = `https://graph.facebook.com/v16.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
     const message = {
@@ -60,11 +55,13 @@ async function sendDirectMessage(recipientId, messageText) {
     };
 
     try {
+        console.log('Sending message:', message);
         await axios.post(url, message);
         console.log('Message sent!');
     } catch (error) {
-        console.error('Error sending message:', error.response.data);
+        console.error('Error sending message:', error.response?.data || error.message);
     }
 }
 
-app.listen(3000, () => console.log('Server is running on port 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
