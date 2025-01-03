@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.INSTAGRAM_PAGE_ACCESS_TOKEN;
 
+// Верификация вебхука
 app.get('/webhook', (req, res) => {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
@@ -20,6 +21,7 @@ app.get('/webhook', (req, res) => {
     }
 });
 
+// Обработка входящих событий
 app.post('/webhook', async (req, res) => {
     const body = req.body;
 
@@ -47,6 +49,7 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
+// Функция для отправки сообщений
 async function sendDirectMessage(recipientId, messageText) {
     const url = `https://graph.facebook.com/v16.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
     const message = {
@@ -62,6 +65,32 @@ async function sendDirectMessage(recipientId, messageText) {
         console.error('Error sending message:', error.response?.data || error.message);
     }
 }
+
+// Обработка запроса на URL /privacy-policy
+app.get('/privacy-policy', (req, res) => {
+    const privacyPolicyText = `
+        Privacy Policy for Instagram Bot
+
+        This Privacy Policy describes how we collect, use, and handle your information when you interact with our Instagram bot.
+
+        1. Information We Collect
+        We collect:
+        - Instagram usernames and IDs
+        - Comments and messages sent to the bot
+
+        2. How We Use Information
+        The information is used to:
+        - Respond to user messages
+        - Provide relevant content and services
+
+        3. Data Protection
+        We do not share your data with third parties. All data is securely stored and handled according to applicable laws.
+
+        Contact us at support@yourdomain.com for any privacy-related questions.
+    `;
+    res.type('text/plain');
+    res.send(privacyPolicyText);
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
