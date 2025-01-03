@@ -9,7 +9,7 @@ const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.INSTAGRAM_PAGE_ACCESS_TOKEN;
 
 // Верификация вебхука
-app.get('/webhook', (req, res) => {
+app.get('/', (req, res) => {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
@@ -22,7 +22,7 @@ app.get('/webhook', (req, res) => {
 });
 
 // Обработка входящих событий
-app.post('/webhook', async (req, res) => {
+app.post('/', async (req, res) => {
     const body = req.body;
 
     if (body.object === 'instagram') {
